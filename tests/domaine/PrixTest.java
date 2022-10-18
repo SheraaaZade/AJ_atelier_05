@@ -91,10 +91,18 @@ class PrixTest {
     }
 
     @Test
-    @DisplayName("teste le paramètre de getPrix avec plusieurs valeurs")
+    @DisplayName("teste le paramètre de getPrix avec valeur 10")
     @ParameterizedTest
-    @ValueSource(ints = {1,5,9,10,15,20,25})
-    void getPrix2() {
+    @ValueSource(ints = {1,5,9,10})
+    void getPrix2(int val) {
+        //assertEquals();
+    }
+
+    @Test
+    @DisplayName("teste le paramètre de getPrix avec valeur 20")
+    @ParameterizedTest
+    @ValueSource(ints = {15,20,25})
+    void getPrix3(int val) {
         //assertEquals();
     }
 }
