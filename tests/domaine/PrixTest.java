@@ -1,5 +1,6 @@
 package domaine;
 
+import exceptions.QuantiteNonAutoriseeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,18 +92,38 @@ class PrixTest {
     }
 
     @Test
-    @DisplayName("teste le paramètre de getPrix avec valeur 10")
+    @DisplayName("teste le paramètre de getPrix si lance exception si <0")
+    void getPrix2() {
+        assertThrows(IllegalArgumentException.class, () -> prixPub.getPrix(-10));
+    }
+
+
+    @DisplayName("teste le paramètre de getPrix avec valeur 1,5,9")
     @ParameterizedTest
-    @ValueSource(ints = {1,5,9,10})
-    void getPrix2(int val) {
-        //assertEquals();
+    @ValueSource(ints = {1,5,9})
+    void getPrix3(int val) {
+        assertEquals( prixAucune.getPrix(val), 20);
+    }
+
+
+    @DisplayName("teste le paramètre de getPrix avec valeur 15,20,25")
+    @ParameterizedTest
+    @ValueSource(ints = {10, 11, 15,20,25})  // conseil toujours tester les valeurs -1 et +1 de la borne afin de tester le < ou <=
+    void getPrix4(int val) {
+        assertEquals( prixAucune.getPrix(val), 10);
     }
 
     @Test
-    @DisplayName("teste le paramètre de getPrix avec valeur 20")
-    @ParameterizedTest
-    @ValueSource(ints = {15,20,25})
-    void getPrix3(int val) {
-        //assertEquals();
+    @DisplayName("teste de la quantiteNonAutoriseeException si demande de prix pour 2 unités")
+    void getPrix5(){
+        assertThrows(QuantiteNonAutoriseeException.class, () -> prixPub.getPrix(2));
     }
+
+    @Test
+    @DisplayName("teste de la quantiteNonAutoriseeException si demande de prix pour 2 unités")
+    void getPrix6(){
+        assertThrows(QuantiteNonAutoriseeException.class, () -> prixSolde.getPrix(1));
+    }
+
+
 }
