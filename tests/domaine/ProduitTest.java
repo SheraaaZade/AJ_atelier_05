@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ProduitTest {
     Prix prixAucune, prixPub, prixSolde;
@@ -27,7 +26,7 @@ public class ProduitTest {
         prod1 = new Produit("Bueno", "Kinder", "64");
         prod2 = new Produit("Switch", "Nintendo", "10");
 
-        LocalDate date = LocalDate.of(2000,1,15);
+        LocalDate date = LocalDate.of(2022,1,15);
         prod1.ajouterPrix(date, prixSolde);
         date = LocalDate.of(2022,11,5);
         prod1.ajouterPrix(date, prixPub);
@@ -140,7 +139,46 @@ public class ProduitTest {
     @Test
     @DisplayName("test if date antérieur est renvoyé entre 2 dates pour lesquelles le prix a été défini")
     void testDateComprise(){
-        assertEquals(prod1.getPrix(LocalDate.of(2010,7,7)), prixSolde);
+        assertEquals(prod1.getPrix(LocalDate.of(2022,7,7)), prixSolde);
     }
 
+    @Test
+    @DisplayName("test equals method if 2 objects with same value are the same")
+    void testEquals1(){
+        Produit prd1 = new Produit("Galaxy","Samsung", "12");
+        Produit prd2 = new Produit("Galaxy","Samsung", "12");
+        assertTrue(prd1.equals(prd2));
+    }
+
+    @Test
+    @DisplayName("test equals method if 2 objects with not the same name")
+    void testEquals2(){
+        Produit prd1 = new Produit("Galaxy","Samsung", "12");
+        Produit prd2 = new Produit("Flip","Samsung", "12");
+        assertNotEquals(prd1, prd2);
+    }
+
+    @Test
+    @DisplayName("test equals method if 2 objects with not the same marque")
+    void testEquals3(){
+        Produit prd1 = new Produit("Galaxy","Samsung", "12");
+        Produit prd2 = new Produit("Galaxy","Shamshung", "12");
+        assertNotEquals(prd1, prd2);
+    }
+
+    @Test
+    @DisplayName("test equals method if 2 objects with not the same rayons")
+    void testEquals4(){
+        Produit prd1 = new Produit("Galaxy","Samsung", "12");
+        Produit prd2 = new Produit("Galaxy","Samsung", "122");
+        assertNotEquals(prd1, prd2);
+    }
+
+    @Test
+    @DisplayName("test equals method if 2 objects with not the same rayons")
+    void testHashcode(){
+        Produit prd1 = new Produit("Galaxy","Samsung", "12");
+        Produit prd2 = new Produit("Galaxy","Samsung", "12");
+        assertEquals(prd1.hashCode(), prd2.hashCode());
+    }
 }
