@@ -20,7 +20,7 @@ class PrixTest {
         prixAucune = new Prix();
         prixAucune.definirPrix(1,20);
         prixAucune.definirPrix(10,10);
-        prixPub = new Prix(TypePromo.PUB, 20 );
+        prixPub = new Prix(TypePromo.PUB, 10 );
         prixPub.definirPrix(3,15);
         prixSolde = new Prix(TypePromo.SOLDE, 50);
     }
@@ -34,48 +34,37 @@ class PrixTest {
     @Test
     @DisplayName("teste du constructeur de Prix avec valeurPromo négative")
     void testPrix2(){
-        assertThrows(IllegalArgumentException.class, () -> new Prix(TypePromo.PUB, -20));
+        assertThrows(IllegalArgumentException.class, () -> new Prix(TypePromo.PUB, -1));
     }
 
     @Test
     @DisplayName("teste du getteur de TypePromo")
     void getTypePromo() {
+        assertAll(()->assertEquals(0,prixAucune.getValeurPromo()),
+                ()-> assertEquals(10,prixPub.getValeurPromo()),
+                () ->assertEquals(50,prixSolde.getValeurPromo()));
     }
 
     @Test
-    @DisplayName("teste de valeurPromo du constructeur de Prix sans paramètre")
-    void getValeurPromo1() {
-        assertEquals(0, prixAucune.getValeurPromo());
+    @DisplayName("teste de valeurPromo du constructeur de Prix")
+    void getValeurPromo() {
+        assertAll(()->assertNull(prixAucune.getTypePromo()),
+                ()-> assertSame(TypePromo.PUB,prixPub.getTypePromo()),
+                () ->assertSame(TypePromo.SOLDE,prixSolde.getTypePromo()));
     }
 
-    @Test
-    @DisplayName("teste de valeurPromo si correspond bien à celle passée en paramètre du constructeur valeurPromo")
-    void getValeurPromo2() {
-        assertEquals(20,prixPub.getValeurPromo());
+    @ParameterizedTest
+    @ValueSource(ints={-1,0})
+    @DisplayName("teste definirPrix si lance une exception si paramètre quantite <ou = à 0")
+    void definirPrix1(int quantite) {
+        assertThrows(IllegalArgumentException.class, () -> prixPub.definirPrix(quantite,10));
     }
 
-    @Test
-    @DisplayName("teste de TypePromo si null")
-    void getValeurPromo3() {
-        assertNull(prixAucune.getTypePromo());
-    }
-
-    @Test
-    @DisplayName("teste de TypePromo à celui passé en paramètre")
-    void getValeurPromo4() {
-        assertEquals(TypePromo.PUB, prixPub.getTypePromo());
-    }
-
-    @Test
-    @DisplayName("teste definirPrix si lance une exception si paramètre quantite <= 0")
-    void definirPrix1() {
-        assertThrows(IllegalArgumentException.class, () -> prixPub.definirPrix(0,10));
-    }
-
-    @Test
+    @ParameterizedTest
+    @ValueSource(doubles={-3,0})
     @DisplayName("teste definirPrix si lance une exception si paramètre valeur <= 0")
-    void definirPrix2() {
-        assertThrows(IllegalArgumentException.class, () -> prixPub.definirPrix(10,0));
+    void definirPrix2(double valeur) {
+        assertThrows(IllegalArgumentException.class, () -> prixPub.definirPrix(10,valeur));
     }
 
     @Test
@@ -85,43 +74,36 @@ class PrixTest {
         assertEquals(6 ,prixAucune.getPrix(10));
     }
 
-    @Test
-    @DisplayName("teste le paramètre de getPrix si lance exception si 0")
-    void getPrix1() {
-        assertThrows(IllegalArgumentException.class, () -> prixPub.getPrix(0));
+    @ParameterizedTest
+    @ValueSource(ints = {-1,0})
+    @DisplayName("teste le paramètre de getPrix si lance exception si < ou = à 0")
+    void getPrix1(int quantite) {
+        assertThrows(IllegalArgumentException.class, () -> prixPub.getPrix(quantite));
     }
 
-    @Test
-    @DisplayName("teste le paramètre de getPrix si lance exception si <0")
-    void getPrix2() {
-        assertThrows(IllegalArgumentException.class, () -> prixPub.getPrix(-10));
-    }
-
-
-    @DisplayName("teste le paramètre de getPrix avec valeur 1,5,9")
     @ParameterizedTest
     @ValueSource(ints = {1,5,9})
-    void getPrix3(int val) {
-        assertEquals( prixAucune.getPrix(val), 20);
+    @DisplayName("teste le paramètre de getPrix si lance exception si {1,5,9}")
+    void getPrix2a(int quantite) throws QuantiteNonAutoriseeException {
+        assertEquals(20,prixAucune.getPrix(quantite));
     }
-
 
     @DisplayName("teste le paramètre de getPrix avec valeur 15,20,25")
     @ParameterizedTest
     @ValueSource(ints = {10, 11, 15,20,25})  // conseil toujours tester les valeurs -1 et +1 de la borne afin de tester le < ou <=
-    void getPrix4(int val) {
-        assertEquals( prixAucune.getPrix(val), 10);
+    void getPrix2b(int quantite) {
+        assertEquals(10, prixAucune.getPrix(quantite));
     }
 
     @Test
     @DisplayName("teste de la quantiteNonAutoriseeException si demande de prix pour 2 unités")
-    void getPrix5(){
+    void getPrix3(){
         assertThrows(QuantiteNonAutoriseeException.class, () -> prixPub.getPrix(2));
     }
 
     @Test
-    @DisplayName("teste de la quantiteNonAutoriseeException si demande de prix pour 2 unités")
-    void getPrix6(){
+    @DisplayName("Test de getPrix s'il n'y a pas de prix défini")
+    void getPrix4(){
         assertThrows(QuantiteNonAutoriseeException.class, () -> prixSolde.getPrix(1));
     }
 

@@ -5,6 +5,8 @@ import exceptions.PrixNonDisponibleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 
@@ -41,11 +43,12 @@ public class ProduitTest {
                new Produit (null, "Kinder", "1"));
     }
 
-    @Test
-    @DisplayName("test of the param nom if empty throws IAE")
-    void testProduit1b(){
+    @ParameterizedTest
+    @ValueSource(strings = {"  ","    \n   ","\t\t   "})
+    @DisplayName("test of the param nom contains spaces -> throws IAE")
+    void testProduit1b(String nom){
         assertThrows( IllegalArgumentException.class, ()  ->
-                new Produit ("", "Kinder", "1"));
+                new Produit (nom, "Kinder", "1"));
     }
 
     @Test
@@ -55,11 +58,12 @@ public class ProduitTest {
                 new Produit ("Switch", null, "1"));
     }
 
-    @Test
-    @DisplayName("test of the param marque if empty throws IAE")
-    void testProduit2b(){
+    @ParameterizedTest
+    @ValueSource(strings = {"  ","    \n   ","\t\t   "})
+    @DisplayName("test of the param marque contains spaces -> throws IAE")
+    void testProduit2b(String marque){
         assertThrows( IllegalArgumentException.class, ()  ->
-                new Produit ("Switch", "", "1"));
+                new Produit ("Switch", marque, "1"));
     }
 
     @Test
@@ -69,11 +73,12 @@ public class ProduitTest {
                 new Produit ("Bueno", "Kinder", null));
     }
 
-    @Test
-    @DisplayName("test of the param rayon if empty throws IAE")
-    void testProduit3b(){
+    @ParameterizedTest
+    @ValueSource(strings = {"  ","    \n   ","\t\t   "})
+    @DisplayName("test of the param rayon contains spaces -> throws IAE")
+    void testProduit3b(String rayon){
         assertThrows( IllegalArgumentException.class, ()  ->
-                new Produit ("Bueno", "Kinder", ""));
+                new Produit ("Bueno", "Kinder", rayon));
     }
 
     @Test
@@ -98,7 +103,7 @@ public class ProduitTest {
     @DisplayName("test ajouterPrix if throws IAE if date is null")
     void ajouterPrix1(){
         assertThrows(IllegalArgumentException.class, ()
-            -> prod2.ajouterPrix(null, new Prix()));
+            -> prod2.ajouterPrix(null, prixAucune));
     }
 
     @Test
@@ -118,67 +123,66 @@ public class ProduitTest {
     @Test
     @DisplayName("test ajouterPrix if ")
     void ajouterPrix4(){
-        Prix prix = prod1.getPrix(LocalDate.of(2022,1,15));
-        assertEquals(prod1.getPrix(LocalDate.of(2022,1,15)),prix);
+        Prix prixMoisPasse = prod1.getPrix(LocalDate.of(2022,1,15));
+        Prix prixAujourdhui = prod1.getPrix(LocalDate.of(2022,2,15));
+        assertAll(
+                () -> assertEquals(prixPub, prod1.getPrix(LocalDate.of(2022,1,15))),
+                () -> assertEquals(prixSolde, prod1.getPrix(LocalDate.of(2022,2,14)))
+        );
     }
 
     @Test
     @DisplayName("test if product doesn't exists at given date throws PrixNonDisponibleException")
-    void testDateAnterieur(){
+    void testGetPrix5(){
         assertThrows(PrixNonDisponibleException.class,
                 () -> prod1.getPrix(LocalDate.of(2006,1,15)));
     }
 
     @Test
     @DisplayName("test if product doesn't have price throws PrixNonDisponibleException")
-    void testPrixProduit(){
+    void testPrixProduit() throws PrixNonDisponibleException{
         assertThrows(PrixNonDisponibleException.class,
                 () -> prod2.getPrix(LocalDate.of(2022,1,15)));
     }
 
     @Test
     @DisplayName("test if date antérieur est renvoyé entre 2 dates pour lesquelles le prix a été défini")
-    void testDateComprise(){
+    void testDateComprise()throws PrixNonDisponibleException{
         assertEquals(prod1.getPrix(LocalDate.of(2022,7,7)), prixSolde);
     }
 
     @Test
     @DisplayName("test equals method if 2 objects with same value are the same")
     void testEquals1(){
-        Produit prd1 = new Produit("Galaxy","Samsung", "12");
-        Produit prd2 = new Produit("Galaxy","Samsung", "12");
-        assertTrue(prd1.equals(prd2));
+        Produit prd1 = new Produit("Bueno", "Kinder", "64");
+        assertEquals(prod1, prd1);
     }
 
     @Test
     @DisplayName("test equals method if 2 objects with not the same name")
     void testEquals2(){
-        Produit prd1 = new Produit("Galaxy","Samsung", "12");
-        Produit prd2 = new Produit("Flip","Samsung", "12");
-        assertNotEquals(prd1, prd2);
+        Produit prd1 = new Produit("Chocobon", "Kinder", "64");
+        assertNotEquals(prod1, prd1);
     }
 
     @Test
     @DisplayName("test equals method if 2 objects with not the same marque")
     void testEquals3(){
-        Produit prd1 = new Produit("Galaxy","Samsung", "12");
-        Produit prd2 = new Produit("Galaxy","Shamshung", "12");
-        assertNotEquals(prd1, prd2);
+        Produit prd1 = new Produit("Bueno", "KitKat", "64");
+        assertNotEquals(prod1, prd1);
     }
 
     @Test
     @DisplayName("test equals method if 2 objects with not the same rayons")
     void testEquals4(){
-        Produit prd1 = new Produit("Galaxy","Samsung", "12");
-        Produit prd2 = new Produit("Galaxy","Samsung", "122");
-        assertNotEquals(prd1, prd2);
+        Produit prd1 = new Produit("Bueno", "Kinder", "63");
+        assertNotEquals(prod1, prd1);
     }
 
     @Test
     @DisplayName("test equals method if 2 objects with not the same rayons")
     void testHashcode(){
-        Produit prd1 = new Produit("Galaxy","Samsung", "12");
-        Produit prd2 = new Produit("Galaxy","Samsung", "12");
-        assertEquals(prd1.hashCode(), prd2.hashCode());
+        Produit prd1 = new Produit("Bueno", "Kinder", "64");
+        assertEquals(prod1.hashCode(), prd1.hashCode());
     }
 }
